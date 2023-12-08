@@ -1,5 +1,5 @@
-import { z,  ZodType } from 'zod';
-import { TStudent } from './student.interface';
+import { z } from 'zod';
+
 
 // Define types for the nested structures
 const UserNameValidationSchema = z.object({
@@ -25,7 +25,7 @@ const LocalGuardianValidationSchema = z.object({
 });
 
 // Define the main TStudent schema
-export const StudentValidationSchema: ZodType<TStudent> = z.object({
+export const StudentValidationSchema = z.object({
   id: z.string(),
   password: z.string(),
   name: UserNameValidationSchema,

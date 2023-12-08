@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import { Schema, model } from 'mongoose';
-import bcrypt from 'bcrypt';
+
 
 import {
   TGuardian,
@@ -8,7 +8,7 @@ import {
   TStudent,
   TUserName,
 } from './student.interface';
-import config from '../../config';
+
 
 const userNameSchema = new Schema<TUserName>({
   firstName: {
@@ -79,11 +79,13 @@ const localGuardianSchema = new Schema<TLocalGuardian>({
 
 const studentSchema = new Schema<TStudent>({
   id: { type: String, required: [true, 'ID is required'], unique: true },
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    maxlength: [20, 'Password can not be more than 20 characters'],
+  user: {
+    type: Schema.Types.ObjectId,
+    required: [true, 'User id is required'],
+    unique: true,
+    ref: 'User',
   },
+
   name: {
     type: userNameSchema,
     required: [true, 'Name is required'],
@@ -131,30 +133,13 @@ const studentSchema = new Schema<TStudent>({
     required: [true, 'Local guardian information is required'],
   },
   profileImg: { type: String },
-  isActive: {
-    type: String,
-    enum: {
-      values: ['active', 'blocked'],
-      message: '{VALUE} is not a valid status',
-    },
-    default: 'active',
-  },
   isDeleted: {
     type: Boolean,
     default: false,
   },
 });
 
-studentSchema.pre('save', async function () {
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(config.bcrypt_salt_rounds),
-  );
-});
-studentSchema.post('save', function (doc, next) {
-  doc.password = ''
-next()
-});
+
 studentSchema.pre('find', function ( next) {
 this.find({ isDeleted: {$ne:true} })
 next()
